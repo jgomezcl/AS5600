@@ -1,4 +1,4 @@
 # AS5600
-An Arduino library to handle the chinese breakout board for the AS5600S magnetic position sensor via I2C. 
+An Arduino library to handle the chinese breakout board for the AS5600S magnetic absolute encoder via I2C.
 
-Adapted from SeedStudio's library for its Groove AS5600 Magnetic Rotary Position Encoder.
+![AS5600](images/AS5600.jpg)

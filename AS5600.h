@@ -2,7 +2,7 @@
  * @file AS5600.h
  * @brief AS5600 driver for Arduino-compatible boards
  * @details This library has been created to handle the chinese breakout board
- * for the AS5600S sensor.
+ * for the AS5600S magnetic absolute encoder via I2C.
  * @author: Joan Gomez
  * @version 1.1
  */
