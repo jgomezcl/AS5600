@@ -7,6 +7,7 @@
 #include "AS5600.h"
 
 #define I2C_ADDR        0x36U           /* I2C address */
+#define I2C_TIMEOUT_US  500U            /* I2C timeout in us */
 
 /* Registers */
 #define REG_STATUS      0x0BU           /* Sensor status register */
@@ -23,6 +24,7 @@
 AS5600::AS5600(void)
 {
     Wire.begin();
+    Wire.setWireTimeout(I2C_TIMEOUT_US, true);
 }
 
 AS5600::EStatus AS5600::getStatus(void)
@@ -61,22 +63,44 @@ uint16_t AS5600::getCounts(void)
 
 float AS5600::getDegrees(void)
 {
-    uint16_t u16Cnt = this->getCounts();
-    return ((float)u16Cnt) * CNT_TO_DEG;
+    return ((float)this->getCounts()) * CNT_TO_DEG;
 }
 
 uint8_t AS5600::read(uint8_t u8Addr, uint8_t* pu8Dst, uint8_t u8Size)
 {
+    uint8_t u8Ret = 0U;
+    uint32_t u32Time;
+    bool bTimeout = false;
+
     for (uint8_t u8Bytes = 0U; u8Bytes < u8Size; u8Bytes++)
     {
         Wire.beginTransmission((uint8_t)I2C_ADDR);
         Wire.write(u8Addr + u8Bytes);
-        Wire.endTransmission();
+        if (Wire.endTransmission() != 0U)
+        {
+            break;              /* Abort if timeout/errors */
+        }
+
         Wire.requestFrom((uint8_t)I2C_ADDR, (uint8_t)1U);
+        u32Time = micros();
         while (Wire.available() == 0)
         {
-            /* Wait */
-        };
-        pu8Dst[u8Bytes] = Wire.read();
+            if (micros() - u32Time > I2C_TIMEOUT_US)
+            {
+                bTimeout = true;
+                break;
+            }
+        }
+
+        if (bTimeout == false)
+        {
+            pu8Dst[u8Bytes] = Wire.read();
+            u8Ret++;
+        }
+        else
+        {
+            break;              /* Abort if timeout/errors */
+        }
     }
+    return u8Ret;
 }
