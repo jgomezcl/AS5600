@@ -1,17 +1,12 @@
-/****************************************************
-  AS5600 class for Arduino-compatible boards
-  Author: Joan Gomez
-  Date: 25 May 2021
-  File: AS5600.h
-  Version 1.00
+/**
+ * @file AS5600.h
+ * @brief AS5600 driver for Arduino-compatible boards
+ * @details This library has been created to handle the chinese breakout board
+ * for the AS5600S sensor.
+ * @author: Joan Gomez
+ * @version 1.1
+ */
 
-  Description:  This class has been designed to
-  access the chinese breakout board of the AS5600S.
-  Adapted from the SeedStudio library for its Groove
-  AS5600 Magnetic Rotary Position Encoder.
-  https://github.com/Seeed-Studio/Seeed_Arduino_AS5600
-
-  *****************************************************/
 #ifndef AS5600_h
 #define AS5600_h
 
@@ -19,21 +14,62 @@
 
 class AS5600
 {
-  public:
-    AS5600(void);
-    uint8_t getAddress();
-    uint16_t getRawAngle();
-    float getAngle();
-    uint8_t getMagnetStatus();
+    public:
+        /* Sensor status */
+        typedef enum
+        {
+            STATUS_OK = 0U,             /* Status is ok */
+            STATUS_MAGNET_CLOSE,        /* Magnet is too close */
+            STATUS_MAGNET_FAR,          /* Magnet is too far */
+            STATUS_NO_MAGNET            /* No magnet detected */
+        } EStatus;
 
-  private:
-    uint8_t readOneByte(int in_adr);
-    uint16_t readTwoBytes(int in_adr_hi, int in_adr_lo);
+        /**
+         * Initializes the sensor.
+         */
+        AS5600(void);
 
-    int _as5600_address;
-    int _stat;
-    int  _raw_ang_hi;
-    int _raw_ang_lo;
+        /**
+         * Provides the current status of the sensor.
+         *
+         * @retval Sensor status (see EStatus)
+         */
+        EStatus
+        getStatus(void);
+
+        /**
+         * Provides the current angle in counts.
+         *
+         * @retval Angle in counts (12 bit/rev)
+         */
+        uint16_t
+        getCounts(void);
+
+        /**
+         * Provides the current angle in degrees.
+         *
+         * @retval Angle in degrees
+         */
+        float
+        getDegrees(void);
+
+    private:
+        /**
+         * Reads data from one or several consecutive registers.
+         *
+         * @param[in] u8Addr
+         *  Register address
+         * @param[out] pu8Dst
+         *  Destinatin were read data will be stored
+         * @param[in] u8Size
+         *  Size in bytes of the data to be read
+         *
+         * @retval Number of read bytes
+         */
+        uint8_t
+        read(uint8_t u8Addr,
+             uint8_t* pu8Dst,
+             uint8_t u8Size);
 };
 
 #endif

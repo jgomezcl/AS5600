@@ -1,109 +1,82 @@
-/****************************************************
-  AS5600 class for Arduino-compatible boards
-  Author: Joan Gomez
-  Date: 25 May 2021
-  File: AS5600.cpp
-  Version 1.00
-
-  Description:  This class has been designed to
-  access the chinese breakout board of the AS5600S.
-  Adapted from the SeedStudio library for its Groove
-  AS5600 Magnetic Rotary Position Encoder.
-  https://github.com/Seeed-Studio/Seeed_Arduino_AS5600
-
-  *****************************************************/
+/**
+ * @file AS5600.c
+ */
 
 #include "Arduino.h"
 #include "Wire.h"
 #include "AS5600.h"
 
+#define I2C_ADDR        0x36U           /* I2C address */
 
-AS5600::AS5600()
+/* Registers */
+#define REG_STATUS      0x0BU           /* Sensor status register */
+#define REG_RAW_ANG_HI  0x0CU           /* Raw angle (MSB) register */
+#define REG_RAW_ANG_LO  0x0DU           /* Raw angle (LSB) register */
+
+/* Sensor status flags */
+#define STATUS_MH       0x08U           /* AGC minimum gain overflow, magnet too strong */
+#define STATUS_ML       0x10U           /* AGC maximum gain overflow, magnet too weak */
+#define STATUS_MD       0x20U           /* Magnet detected */
+
+#define CNT_TO_DEG      (360.0/4096.0)  /* Conversion factor from counts to degrees */
+
+AS5600::AS5600(void)
 {
-  _as5600_address = 0x36;
-  _stat = 0x0b;
-  _raw_ang_hi = 0x0c;
-  _raw_ang_lo = 0x0d;
-
-  Wire.begin();
+    Wire.begin();
 }
 
-uint8_t AS5600::getAddress()
+AS5600::EStatus AS5600::getStatus(void)
 {
-  return _as5600_address;
+    uint8_t u8Status;
+    EStatus eRet;
+
+    this->read(REG_STATUS, &u8Status, 1U);
+
+    if ((u8Status & STATUS_MH) != 0U)
+    {
+        eRet = STATUS_MAGNET_CLOSE;
+    }
+    else if ((u8Status & STATUS_ML) != 0U)
+    {
+        eRet = STATUS_MAGNET_FAR;
+    }
+    else if ((u8Status & STATUS_MD) == 0U)
+    {
+        eRet = STATUS_NO_MAGNET;
+    }
+    else
+    {
+        eRet = STATUS_OK;
+    }
+    return eRet;
 }
 
-uint8_t AS5600::getMagnetStatus()
+uint16_t AS5600::getCounts(void)
 {
-  uint8_t magStatus;
-
-  //0 0 MD ML MH 0 0 0
-  //MD high > magnet detected
-  //ML high > magnet too weak
-  //MH high > Magnet too strong
-  magStatus = readOneByte(_stat);
-
-  if (magStatus & 0x20)
-    return 1;   //magnet ok
-
-  if (magStatus & 0x08)
-    return 2;   //too strong
-
-  return 0;     //too weak or not present
+    uint16_t u16Cnt;
+    this->read(REG_RAW_ANG_HI, (uint8_t*)&u16Cnt, 2U);
+    /* Swap bytes */
+    return ((u16Cnt & 0x000FU) << 8) | ((u16Cnt & 0xFF00U) >> 8);
 }
 
-uint16_t AS5600::getRawAngle()
+float AS5600::getDegrees(void)
 {
-  return readTwoBytes(_raw_ang_hi, _raw_ang_lo);
+    uint16_t u16Cnt = this->getCounts();
+    return ((float)u16Cnt) * CNT_TO_DEG;
 }
 
-float AS5600::getAngle()
+uint8_t AS5600::read(uint8_t u8Addr, uint8_t* pu8Dst, uint8_t u8Size)
 {
-  uint16_t angle = readTwoBytes(_raw_ang_hi, _raw_ang_lo);
-  return angle * 0.08789;   //conversion from 0-4095 to 0-360
-}
-
-uint8_t AS5600::readOneByte(int in_adr)
-{
-  uint8_t retVal = -1;
-  Wire.beginTransmission(_as5600_address);
-  Wire.write(in_adr);
-  Wire.endTransmission();
-  Wire.requestFrom(_as5600_address, 1);
-  while (Wire.available() == 0)
-    ;
-  retVal = Wire.read();
-
-  return retVal;
-}
-
-uint16_t AS5600::readTwoBytes(int in_adr_hi, int in_adr_lo)
-{
-  uint16_t retVal;
-
-  //Read the low byte
-  Wire.beginTransmission(_as5600_address);
-  Wire.write(in_adr_lo);
-  Wire.endTransmission();
-  Wire.requestFrom(_as5600_address, 1);
-  while (Wire.available() == 0)
-    ;
-  uint8_t low = Wire.read();
-
-  //Read the high byte
-  Wire.beginTransmission(_as5600_address);
-  Wire.write(in_adr_hi);
-  Wire.endTransmission();
-  Wire.requestFrom(_as5600_address, 1);
-
-  while (Wire.available() == 0)
-    ;
-
-  retVal = Wire.read();
-
-  //Join both values
-  retVal = retVal << 8;
-  retVal = retVal | low;
-
-  return retVal;
+    for (uint8_t u8Bytes = 0U; u8Bytes < u8Size; u8Bytes++)
+    {
+        Wire.beginTransmission((uint8_t)I2C_ADDR);
+        Wire.write(u8Addr + u8Bytes);
+        Wire.endTransmission();
+        Wire.requestFrom((uint8_t)I2C_ADDR, (uint8_t)1U);
+        while (Wire.available() == 0)
+        {
+            /* Wait */
+        };
+        pu8Dst[u8Bytes] = Wire.read();
+    }
 }
