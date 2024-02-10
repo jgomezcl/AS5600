@@ -4,7 +4,6 @@
  * @details This library has been created to handle the chinese breakout board
  * for the AS5600S magnetic absolute encoder via I2C.
  * @author: Joan Gomez
- * @version 1.1
  */
 
 #ifndef AS5600_h
@@ -15,6 +14,7 @@
 class AS5600
 {
     public:
+
         /* Sensor status */
         typedef enum
         {
@@ -54,13 +54,14 @@ class AS5600
         getDegrees(void);
 
     private:
+
         /**
          * Reads data from one or several consecutive registers.
          *
          * @param[in] u8Addr
          *  Register address
          * @param[out] pu8Dst
-         *  Destinatin were read data will be stored
+         *  Destination were read data will be stored
          * @param[in] u8Size
          *  Size in bytes of the data to be read
          *
@@ -72,4 +73,4 @@ class AS5600
              uint8_t u8Size);
 };
 
-#endif
+#endif /* AS5600_h */

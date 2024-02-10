@@ -1,3 +1,10 @@
+/**
+ * @file ReadAngle.ino
+ * @brief Read angle example
+ * @details Example showing how to use the AS5600 driver.
+ * @author: Joan Gomez
+ */
+
 #include <AS5600.h>
 
 AS5600 as5600;

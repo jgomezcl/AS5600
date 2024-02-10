@@ -1,25 +1,25 @@
 /**
- * @file AS5600.c
+ * @file AS5600.cpp
  */
 
 #include "Arduino.h"
 #include "Wire.h"
 #include "AS5600.h"
 
-#define I2C_ADDR        0x36U           /* I2C address */
-#define I2C_TIMEOUT_US  500U            /* I2C timeout in us */
+#define I2C_ADDR        0x36U               /* I2C address */
+#define I2C_TIMEOUT_US  500U                /* I2C timeout in us */
 
 /* Registers */
-#define REG_STATUS      0x0BU           /* Sensor status register */
-#define REG_RAW_ANG_HI  0x0CU           /* Raw angle (MSB) register */
-#define REG_RAW_ANG_LO  0x0DU           /* Raw angle (LSB) register */
+#define REG_STATUS      0x0BU               /* Sensor status register */
+#define REG_RAW_ANG_HI  0x0CU               /* Raw angle (MSB) register */
+#define REG_RAW_ANG_LO  0x0DU               /* Raw angle (LSB) register */
 
 /* Sensor status flags */
-#define STATUS_MH       0x08U           /* AGC minimum gain overflow, magnet too strong */
-#define STATUS_ML       0x10U           /* AGC maximum gain overflow, magnet too weak */
-#define STATUS_MD       0x20U           /* Magnet detected */
+#define STATUS_MH       0x08U               /* AGC minimum gain overflow, magnet too strong */
+#define STATUS_ML       0x10U               /* AGC maximum gain overflow, magnet too weak */
+#define STATUS_MD       0x20U               /* Magnet detected */
 
-#define CNT_TO_DEG      (360.0/4096.0)  /* Conversion factor from counts to degrees */
+#define CNT_TO_DEG      (360.0f/4096.0f)    /* Conversion factor from counts to degrees */
 
 AS5600::AS5600(void)
 {
