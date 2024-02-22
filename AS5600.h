@@ -1,13 +1,13 @@
 /**
  * @file AS5600.h
  * @brief AS5600 driver for Arduino-compatible boards
- * @details This library has been created to handle the chinese breakout board
- * for the AS5600S magnetic absolute encoder via I2C.
+ * @details This library has been created to handle the breakout board for the
+ *          AS5600S magnetic absolute encoder via I2C.
  * @author: Joan Gomez
  */
 
-#ifndef AS5600_h
-#define AS5600_h
+#ifndef AS5600_H
+#define AS5600_H
 
 #include <Arduino.h>
 
@@ -73,4 +73,4 @@ class AS5600
              uint8_t u8Size);
 };
 
-#endif /* AS5600_h */
+#endif /* AS5600_H */

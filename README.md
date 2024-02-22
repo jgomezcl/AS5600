@@ -1,4 +1,12 @@
 # AS5600
-An Arduino library to handle the chinese breakout board for the AS5600S magnetic absolute encoder via I2C.
+An Arduino library to handle the breakout board for the AS5600S magnetic
+absolute encoder via I2C.
 
-![AS5600](images/AS5600.jpg)
+[<p style="text-align:center;">
+ <img src="images/AS5600.jpg" width="250" />](images/AS5600.jpg)
+
+## Usage
+- Download the code as a .ZIP file.
+- In the Arduino IDE, navigate to *Sketch/Include Library/Add .ZIP Library*.
+- At the top of the drop down list, select the option to *Add .ZIP Library*.
+- Usage examples will appear in *File/Examples/AS5600*.
