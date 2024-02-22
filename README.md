@@ -2,8 +2,7 @@
 An Arduino library to handle the breakout board for the AS5600S magnetic
 absolute encoder via I2C.
 
-[<p style="text-align:center;">
- <img src="images/AS5600.jpg" width="250" />](images/AS5600.jpg)
+[<img src="images/AS5600.jpg" width="300" />](images/AS5600.jpg)
 
 ## Usage
 - Download the code as a .ZIP file.
